@@ -1,9 +1,11 @@
 package com.lars;
 
 import com.lars.cosinedistance.CosineDistance;
+import sun.awt.AWTAccessor;
 
 import java.text.DecimalFormat;
-
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Main {
@@ -11,9 +13,9 @@ public class Main {
     public static void main(String[] args) {
 	// write your code here
 
-        String needle1 = "Locations";
-        String needle2 = "Locat";
-        Double treshold = 1.0;
+        String needle1 = "PersonInLocation";
+        String needle2 = "PLocation";
+        Double treshold = 0.7;
         DecimalFormat f = new DecimalFormat("##.00");
 
         // Algorithms
@@ -51,7 +53,7 @@ public class Main {
         JaroWrinklerDistance jwd = new JaroWrinklerDistance();
         Double jwdcoeff = jwd.apply(needle1, needle2);
         Double jwdsimilarity =  (jwdcoeff/Math.max(needle1.length(), needle2.length()));
-        printResult(jwdcoeff.toString(), "Jaro-Wrinkler Distance");
+        printResult(jwdcoeff.toString(), "Jaro-Wrinkler");
 
         // Cosine Distance
         //-----------------
@@ -68,10 +70,38 @@ public class Main {
 
         //sw.printMatrix();
 
+        // Multi Check
+        //==============
+        System.out.println("");
+        DummyStrings ds = new DummyStrings();
+        findMatches("SandraInLiving", ds.getDummy(1), treshold);
     }
 
     public static void printResult(String res, String algo){
         System.out.println(algo + ": " + res);
+    }
+
+    public static List<String>findMatches(String needle, ArrayList<String> hayStack, Double treshold){
+        ArrayList<String> resmatches = new ArrayList<>();
+
+        JaroWrinklerDistance jwd = new JaroWrinklerDistance();
+
+        for(String straw : hayStack){
+            Double jwdcoeff = jwd.apply(needle, straw);
+            printCurrStrawMatch(straw, jwdcoeff, treshold);
+        }
+
+        return resmatches;
+    }
+
+    public static void printCurrStrawMatch(String straw, Double score, Double treshold){
+        //System.out.println("Straw  |  Score  | Above treshold");
+
+        System.out.print(straw + ": " + score.toString() + " - " );
+        if(score>=treshold)
+            System.out.println("V");
+        else
+            System.out.println("X");
     }
 
 }
