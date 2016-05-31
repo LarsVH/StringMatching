@@ -3,15 +3,16 @@ package com.lars;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
- * Created by lars on 29.05.16.
+ * Created by lars vh on 29.05.16.
  */
-public class Gui extends JFrame{
+public class Gui extends JFrame {
     private JList<String> needlePick;
     private JTextField needle2;
     private JTextField needle1;
@@ -25,13 +26,14 @@ public class Gui extends JFrame{
     ArrayList<String> needles;
 
 
-    public Gui(ArrayList<String> needles){
+    public Gui(ArrayList<String> needles) {
         super("String Matching Performance");
 
         this.needles = needles;
+        needle1.setText(needles.get(0));
 
         DefaultListModel<String> dlm = new DefaultListModel<>();
-        for(String needle: needles){
+        for (String needle : needles) {
             dlm.addElement(needle);
         }
 
@@ -41,7 +43,7 @@ public class Gui extends JFrame{
                 new ListSelectionListener() {
                     @Override
                     public void valueChanged(ListSelectionEvent e) {
-                        ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+                        ListSelectionModel lsm = (ListSelectionModel) e.getSource();
                         needle1.setText(needlePick.getSelectedValue());
                     }
                 });
@@ -51,10 +53,10 @@ public class Gui extends JFrame{
             @Override
             public void stateChanged(ChangeEvent e) {
                 Integer tresholdsl = tresholdSlider.getValue();
-                treshold = tresholdsl.doubleValue()/100;
+                treshold = tresholdsl.doubleValue() / 100;
                 DecimalFormat f = new DecimalFormat("#0.0");
 
-                tresholdLabel.setText(f.format(treshold).toString());
+                tresholdLabel.setText(f.format(treshold));
             }
         });
 
@@ -64,14 +66,10 @@ public class Gui extends JFrame{
                 //ArrayList<ResultTriple> results = util.performAlgorithms(needle1.getText(), needle2.getText(), treshold);
 
                 createTable(needles);
-
-
             }
         });
 
-
-
-
+        createTable(needles);
 
         setContentPane(rootPanel);
         pack();
@@ -83,26 +81,26 @@ public class Gui extends JFrame{
         MyTableModel mtm = new MyTableModel();
         String ndl0 = needles.get(0);
         ArrayList<ResultTriple> results0 = util.performAlgorithms(needle1.getText(), ndl0, treshold);
-        String[] colnames = new String[results0.size()+1];
+        String[] colnames = new String[results0.size() + 1];
         colnames[0] = "^>";
-        Object[][] data = new Object[needles.size()][results0.size() + 1];
+        String[][] data = new String[needles.size()][results0.size() + 1];
         Boolean[][] layout = new Boolean[needles.size()][results0.size() + 1];
 
         // i = needles (Location, Kitchen, ...)
         // [row] [col]
-        for(int i=0; i<needles.size(); i++){
+        for (int i = 0; i < needles.size(); i++) {
             String currNeedle = needles.get(i);
             data[i][0] = currNeedle;
 
             ArrayList<ResultTriple> resultsi = util.performAlgorithms(needle1.getText(), currNeedle, treshold);
 
             // j = Algo's (Hamming, Levenshtein, etc.)
-            for(int j=0; j<resultsi.size(); j++){
+            for (int j = 0; j < resultsi.size(); j++) {
                 ResultTriple curr = resultsi.get(j);
-                colnames[j+1] = curr.getAlgo();
-                data[i][j+1] = curr.getScore();
+                colnames[j + 1] = curr.getAlgo();
+                data[i][j + 1] = curr.getScore().toString();
 
-                layout[i][j+1] = curr.getAccepted();
+                layout[i][j + 1] = curr.getAccepted();
                 System.out.println(curr.getScore());
             }
 
@@ -110,7 +108,9 @@ public class Gui extends JFrame{
         mtm.data = data;
         mtm.columnNames = colnames;
 
+
         algoTable.setModel(mtm);
+        algoTable.setDefaultRenderer(Object.class, new CustomTableRenderer(layout));
     }
 
 
@@ -124,8 +124,8 @@ class MyTableModel extends AbstractTableModel {
         this.data = data;
     }*/
 
-    public String[] columnNames = { "First Name", "Last Name", "Sport",
-            "# of Years", "Vegetarian" };
+    public String[] columnNames = {"First Name", "Last Name", "Sport",
+            "# of Years", "Vegetarian"};
 
     public Object[][] data;/* = {
             { "Mary", "Campione", "Snowboarding", new Integer(5),
@@ -203,6 +203,42 @@ class MyTableModel extends AbstractTableModel {
             System.out.println();
         }
         System.out.println("--------------------------");
+    }
+
+}
+
+//Custom DefaultTableCellRenderer
+class CustomTableRenderer extends DefaultTableCellRenderer {
+    Boolean[][] acceptance;
+
+    public CustomTableRenderer(Boolean[][] acceptance){
+        this.acceptance = acceptance;
+    }
+
+    @Override
+    public Component getTableCellRendererComponent(JTable table, Object value,
+                                          boolean isSelected, boolean hasFocus, int row, int col) {
+        Component c = super.getTableCellRendererComponent(table, value, isSelected,
+                hasFocus, row, col);
+
+        Object cell = table.getValueAt(row, col);
+        System.out.println("#cols >>> " + table.getColumnCount());
+
+        c.setForeground(Color.CYAN);
+        if (col != 0) {
+            if (acceptance[row][col] == null) {}
+            else if (acceptance[row][col]) {
+                c.setForeground(Color.GREEN);
+                //c.setFont(new Font("Dialog", Font.BOLD, 12));
+            } else
+                c.setForeground(Color.RED);
+        } else if (col == 0) {
+            c.setForeground(Color.BLUE);
+            //stay at default
+            //c.setForeground(Color.BLACK);
+            //c.setFont(new Font("Dialog", Font.PLAIN, 12));
+        }
+        return c;
     }
 
 }
