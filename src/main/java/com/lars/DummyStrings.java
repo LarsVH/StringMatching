@@ -25,6 +25,7 @@ public class DummyStrings {
                 dummy.add("CisaMeeting");
                 dummy.add("VinceSleeps");
                 dummy.add("SInBedRoom");
+                dummy.add("activity");
                 break;
             case 2:
                 break;

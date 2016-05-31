@@ -1,6 +1,7 @@
 package com.lars;
 
         import javax.swing.*;
+        import java.util.Collection;
 
 /**
  * Created by lars on 31.05.16.
@@ -10,7 +11,7 @@ public class Suggestions extends JFrame {
     private JLabel toMatch;
     private JPanel rootPanel;
 
-    public Suggestions(String needle, String[] suggestions) {
+    public Suggestions(String needle, Collection<String> suggestions) {
         super("Suggestions");
 
         toMatch.setText(needle);

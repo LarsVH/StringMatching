@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Created by lars vh on 29.05.16.
@@ -72,8 +73,10 @@ public class Gui extends JFrame {
         results.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String[] test = {"hihi", "hehe"};
-                Suggestions suggestions = new Suggestions("haha", test);
+
+                HashSet<String> suggestions = util.computeSuggestions(needle1.getText(), needles, treshold);
+
+                Suggestions gSuggestions = new Suggestions(needle1.getText(), suggestions);
             }
         });
 
@@ -83,8 +86,6 @@ public class Gui extends JFrame {
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
-
-        util.getSynonyms("Location");
     }
 
     private void createTable(ArrayList<String> needles) {

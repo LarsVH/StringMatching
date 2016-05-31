@@ -3,8 +3,12 @@ package com.lars;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by lars on 30.05.16.
@@ -93,38 +97,43 @@ public class Util {
     }
 
     // Compute suggestions, only with Jaro-Winkler and external sources
-    public ArrayList<String> computeSuggestions(String needle, ArrayList<String> hayStack, Double treshold){
-        ArrayList<String> results = new ArrayList<>();
-
-
+    public HashSet<String> computeSuggestions(String needle, ArrayList<String> hayStack, Double treshold){
+        HashSet<String> results = new HashSet<>();
 
         for(String currNeedle : hayStack){
-            boolean jaroWinkleraccept = false;
             JaroWrinklerDistance jwd = new JaroWrinklerDistance();
             Double jwdcoeff = jwd.apply(needle, currNeedle);
             if(jwdcoeff >= treshold)
-                jaroWinkleraccept = true;
-
-            // synonyms
-            //TODO
-
+                results.add(currNeedle);
         }
+        // synonyms
+        HashSet<String> synonyms = getSynonyms(needle);
+        synonyms.retainAll(hayStack);
+        results.addAll(synonyms);
+
         return results;
     }
 
     // Get synonyms for word
-    public ArrayList<String> getSynonyms(String word) {
-        ArrayList<String> results = new ArrayList<>();
+    public HashSet<String> getSynonyms(String word) {
+        HashSet<String> synonyms = new HashSet<>();
         String SYNONYMURL = "http://words.bighugelabs.com/api/2/e6f43a73aed761daf738a2072ffbd38d/";
         String SYNONYMURLSUFFIX = "/json";
 
         try {
             HttpResponse<String> request = Unirest.get(SYNONYMURL + word + SYNONYMURLSUFFIX).asString();
-            System.out.println(request.getBody());
+            JSONObject json = new JSONObject(request.getBody().trim());
+            JSONObject noun = json.getJSONObject("noun");
+            JSONArray jSynonyms = noun.getJSONArray("syn");
+
+            for(int i=0; i < jSynonyms.length(); i++){
+                String currsyn = jSynonyms.getString(i);
+                synonyms.add(currsyn);
+            }
         } catch (UnirestException e) {
             e.printStackTrace();
         }
-        return results;
+        return synonyms;
     }
 
 }
