@@ -1,6 +1,8 @@
 package com.lars;
 
-import com.lars.cosinedistance.CosineDistance;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 
 import java.util.ArrayList;
 
@@ -89,4 +91,40 @@ public class Util {
 
         return res;
     }
+
+    // Compute suggestions, only with Jaro-Winkler and external sources
+    public ArrayList<String> computeSuggestions(String needle, ArrayList<String> hayStack, Double treshold){
+        ArrayList<String> results = new ArrayList<>();
+
+
+
+        for(String currNeedle : hayStack){
+            boolean jaroWinkleraccept = false;
+            JaroWrinklerDistance jwd = new JaroWrinklerDistance();
+            Double jwdcoeff = jwd.apply(needle, currNeedle);
+            if(jwdcoeff >= treshold)
+                jaroWinkleraccept = true;
+
+            // synonyms
+            //TODO
+
+        }
+        return results;
+    }
+
+    // Get synonyms for word
+    public ArrayList<String> getSynonyms(String word) {
+        ArrayList<String> results = new ArrayList<>();
+        String SYNONYMURL = "http://words.bighugelabs.com/api/2/e6f43a73aed761daf738a2072ffbd38d/";
+        String SYNONYMURLSUFFIX = "/json";
+
+        try {
+            HttpResponse<String> request = Unirest.get(SYNONYMURL + word + SYNONYMURLSUFFIX).asString();
+            System.out.println(request.getBody());
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        return results;
+    }
+
 }

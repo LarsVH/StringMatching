@@ -32,28 +32,5 @@ public class Main {
     private static void printResult(String res, String algo){
         System.out.println(algo + ": " + res);
     }
-    @Deprecated
-    private static List<String>findMatches(String needle, ArrayList<String> hayStack, Double treshold){
-        ArrayList<String> resmatches = new ArrayList<>();
-
-        JaroWrinklerDistance jwd = new JaroWrinklerDistance();
-
-        for(String straw : hayStack){
-            Double jwdcoeff = jwd.apply(needle, straw);
-            printCurrStrawMatch(straw, jwdcoeff, treshold);
-        }
-
-        return resmatches;
-    }
-    @Deprecated
-    private static void printCurrStrawMatch(String straw, Double score, Double treshold){
-        //System.out.println("Straw  |  Score  | Above treshold");
-
-        System.out.print(straw + ": " + score.toString() + " - " );
-        if(score>=treshold)
-            System.out.println("V");
-        else
-            System.out.println("X");
-    }
 
 }

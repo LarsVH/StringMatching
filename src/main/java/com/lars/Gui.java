@@ -14,13 +14,13 @@ import java.util.ArrayList;
  */
 public class Gui extends JFrame {
     private JList<String> needlePick;
-    private JTextField needle2;
     private JTextField needle1;
     private JTable algoTable;
     private JSlider tresholdSlider;
     private JButton execute;
     private JPanel rootPanel;
     private JLabel tresholdLabel;
+    private JButton results;
     private Util util = new Util();
     Double treshold = 0.5;
     ArrayList<String> needles;
@@ -69,12 +69,22 @@ public class Gui extends JFrame {
             }
         });
 
+        results.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String[] test = {"hihi", "hehe"};
+                Suggestions suggestions = new Suggestions("haha", test);
+            }
+        });
+
         createTable(needles);
 
         setContentPane(rootPanel);
         pack();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
+
+        util.getSynonyms("Location");
     }
 
     private void createTable(ArrayList<String> needles) {
@@ -112,8 +122,6 @@ public class Gui extends JFrame {
         algoTable.setModel(mtm);
         algoTable.setDefaultRenderer(Object.class, new CustomTableRenderer(layout));
     }
-
-
 }
 
 class MyTableModel extends AbstractTableModel {
@@ -222,7 +230,6 @@ class CustomTableRenderer extends DefaultTableCellRenderer {
                 hasFocus, row, col);
 
         Object cell = table.getValueAt(row, col);
-        System.out.println("#cols >>> " + table.getColumnCount());
 
         c.setForeground(Color.CYAN);
         if (col != 0) {
